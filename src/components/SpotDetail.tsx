@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 interface Comment {
@@ -32,25 +32,22 @@ export default function SpotDetail({ spot, onClose }: SpotDetailProps) {
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<{ id: string } | null>(null);
 
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
   useEffect(() => {
-    loadComments();
-    checkUser();
-  }, [spot.id]);
+    async function initializeDetail() {
+      const [commentsRes, userRes] = await Promise.all([
+        fetch(`/api/comments?spot_id=${spot.id}`),
+        supabase.auth.getUser(),
+      ]);
 
-  async function checkUser() {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    setUser(user);
-  }
+      const commentsData = await commentsRes.json();
+      setComments(commentsData);
+      setUser(userRes.data.user);
+    }
 
-  async function loadComments() {
-    const res = await fetch(`/api/comments?spot_id=${spot.id}`);
-    const data = await res.json();
-    setComments(data);
-  }
+    void initializeDetail();
+  }, [spot.id, supabase]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -62,9 +59,13 @@ export default function SpotDetail({ spot, onClose }: SpotDetailProps) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ spot_id: spot.id, body: newComment }),
     });
+
+    const commentsRes = await fetch(`/api/comments?spot_id=${spot.id}`);
+    const commentsData = await commentsRes.json();
+
     setNewComment("");
+    setComments(commentsData);
     setLoading(false);
-    loadComments();
   }
 
   return (

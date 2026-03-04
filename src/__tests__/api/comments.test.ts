@@ -2,6 +2,8 @@
  * @jest-environment node
  */
 
+import { NextRequest } from "next/server";
+
 /* ---------- Mock plumbing ---------- */
 function createQueryBuilder(data: unknown = [], error: unknown = null) {
   const builder: Record<string, jest.Mock> = {};
@@ -44,7 +46,7 @@ beforeEach(() => resetMocks());
 
 describe("GET /api/comments", () => {
   it("returns 400 when spot_id is missing", async () => {
-    const res = await GET(new Request("http://localhost/api/comments") as any);
+    const res = await GET(new NextRequest("http://localhost/api/comments"));
     const data = await res.json();
     expect(res.status).toBe(400);
     expect(data.error).toBe("spot_id is required");
@@ -56,7 +58,9 @@ describe("GET /api/comments", () => {
     ];
     mockFromReturns(comments);
 
-    const res = await GET(new Request("http://localhost/api/comments?spot_id=1") as any);
+    const res = await GET(
+      new NextRequest("http://localhost/api/comments?spot_id=1")
+    );
     expect(res.status).toBe(200);
   });
 });
@@ -65,11 +69,11 @@ describe("POST /api/comments", () => {
   it("rejects unauthenticated requests", async () => {
     mockAuthUser(null);
     const res = await POST(
-      new Request("http://localhost/api/comments", {
+      new NextRequest("http://localhost/api/comments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ spot_id: 1, body: "Nice!" }),
-      }) as any
+      })
     );
     expect(res.status).toBe(401);
   });
@@ -77,11 +81,11 @@ describe("POST /api/comments", () => {
   it("rejects requests missing required fields", async () => {
     mockAuthUser({ id: "user-123" });
     const res = await POST(
-      new Request("http://localhost/api/comments", {
+      new NextRequest("http://localhost/api/comments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({}),
-      }) as any
+      })
     );
     const data = await res.json();
     expect(res.status).toBe(400);
@@ -97,11 +101,11 @@ describe("POST /api/comments", () => {
     });
 
     const res = await POST(
-      new Request("http://localhost/api/comments", {
+      new NextRequest("http://localhost/api/comments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ spot_id: 1, body: "Found chanterelles here!" }),
-      }) as any
+      })
     );
     expect(res.status).toBe(201);
   });

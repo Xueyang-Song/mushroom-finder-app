@@ -57,38 +57,38 @@ export default function DashboardPage() {
   const [showWildfire, setShowWildfire] = useState(false);
 
   useEffect(() => {
-    fetchSpots();
-    fetchMushrooms();
-    fetchWildfire();
+    async function fetchSpots() {
+      const params = new URLSearchParams();
+      if (season) params.set("season", season);
+      if (forestType) params.set("forest_type", forestType);
+      if (areaType) params.set("area_type", areaType);
+
+      const res = await fetch(`/api/spots?${params}`);
+      const data = await res.json();
+      if (Array.isArray(data)) setSpots(data);
+    }
+
+    async function fetchMushrooms() {
+      const params = new URLSearchParams();
+      if (season) params.set("season", season);
+      if (forestType) params.set("forest_type", forestType);
+      if (areaType) params.set("area_type", areaType);
+
+      const res = await fetch(`/api/mushrooms?${params}`);
+      const data = await res.json();
+      if (Array.isArray(data)) setMushrooms(data);
+    }
+
+    async function fetchWildfire() {
+      const res = await fetch("/api/wildfire");
+      const data = await res.json();
+      if (Array.isArray(data)) setWildfireAreas(data);
+    }
+
+    void fetchSpots();
+    void fetchMushrooms();
+    void fetchWildfire();
   }, [season, forestType, areaType]);
-
-  async function fetchSpots() {
-    const params = new URLSearchParams();
-    if (season) params.set("season", season);
-    if (forestType) params.set("forest_type", forestType);
-    if (areaType) params.set("area_type", areaType);
-
-    const res = await fetch(`/api/spots?${params}`);
-    const data = await res.json();
-    if (Array.isArray(data)) setSpots(data);
-  }
-
-  async function fetchMushrooms() {
-    const params = new URLSearchParams();
-    if (season) params.set("season", season);
-    if (forestType) params.set("forest_type", forestType);
-    if (areaType) params.set("area_type", areaType);
-
-    const res = await fetch(`/api/mushrooms?${params}`);
-    const data = await res.json();
-    if (Array.isArray(data)) setMushrooms(data);
-  }
-
-  async function fetchWildfire() {
-    const res = await fetch("/api/wildfire");
-    const data = await res.json();
-    if (Array.isArray(data)) setWildfireAreas(data);
-  }
 
   return (
     <main className="max-w-6xl mx-auto px-4 py-6 space-y-6">

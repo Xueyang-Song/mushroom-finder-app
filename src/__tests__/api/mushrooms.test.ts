@@ -2,6 +2,8 @@
  * @jest-environment node
  */
 
+import { NextRequest } from "next/server";
+
 /* ---------- Mock plumbing ---------- */
 function createQueryBuilder(data: unknown = [], error: unknown = null) {
   const builder: Record<string, jest.Mock> = {};
@@ -45,33 +47,41 @@ describe("GET /api/mushrooms", () => {
     ];
     mockFromReturns(mushrooms);
 
-    const res = await GET(new Request("http://localhost/api/mushrooms") as any);
+    const res = await GET(new NextRequest("http://localhost/api/mushrooms"));
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual(mushrooms);
   });
 
   it("accepts season filter", async () => {
     mockFromReturns([]);
-    const res = await GET(new Request("http://localhost/api/mushrooms?season=spring") as any);
+    const res = await GET(
+      new NextRequest("http://localhost/api/mushrooms?season=spring")
+    );
     expect(res.status).toBe(200);
   });
 
   it("accepts forest_type filter", async () => {
     mockFromReturns([]);
-    const res = await GET(new Request("http://localhost/api/mushrooms?forest_type=conifer") as any);
+    const res = await GET(
+      new NextRequest("http://localhost/api/mushrooms?forest_type=conifer")
+    );
     expect(res.status).toBe(200);
   });
 
   it("accepts morel-only filter", async () => {
     mockFromReturns([]);
-    const res = await GET(new Request("http://localhost/api/mushrooms?morel=true") as any);
+    const res = await GET(
+      new NextRequest("http://localhost/api/mushrooms?morel=true")
+    );
     expect(res.status).toBe(200);
   });
 
   it("accepts combined filters", async () => {
     mockFromReturns([]);
     const res = await GET(
-      new Request("http://localhost/api/mushrooms?season=fall&forest_type=mixed&area_type=state_park") as any
+      new NextRequest(
+        "http://localhost/api/mushrooms?season=fall&forest_type=mixed&area_type=state_park"
+      )
     );
     expect(res.status).toBe(200);
   });

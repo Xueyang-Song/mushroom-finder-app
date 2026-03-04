@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup, Circle } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -13,16 +12,6 @@ const defaultIcon = L.icon({
   shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
   iconSize: [25, 41],
   iconAnchor: [12, 41],
-});
-
-const fireIcon = L.icon({
-  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-  iconRetinaUrl:
-    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  className: "fire-marker",
 });
 
 interface Spot {
@@ -61,20 +50,6 @@ export default function MapView({
   showWildfire,
   onSpotClick,
 }: MapViewProps) {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) {
-    return (
-      <div className="w-full h-[500px] bg-gray-100 rounded-lg flex items-center justify-center">
-        <p className="text-gray-500">Loading map...</p>
-      </div>
-    );
-  }
-
   // Center on Washington state
   const center: [number, number] = [47.4, -120.7];
 

@@ -2,6 +2,8 @@
  * @jest-environment node
  */
 
+import { NextRequest } from "next/server";
+
 /* ---------- Mock plumbing ---------- */
 function createQueryBuilder(data: unknown = [], error: unknown = null) {
   const builder: Record<string, jest.Mock> = {};
@@ -47,21 +49,23 @@ describe("GET /api/spots", () => {
     const spots = [{ id: 1, name: "Test Spot", latitude: 47, longitude: -121 }];
     mockFromReturns(spots);
 
-    const res = await GET(new Request("http://localhost/api/spots") as any);
+    const res = await GET(new NextRequest("http://localhost/api/spots"));
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual(spots);
   });
 
   it("passes season filter to query", async () => {
     mockFromReturns([]);
-    const res = await GET(new Request("http://localhost/api/spots?season=fall") as any);
+    const res = await GET(new NextRequest("http://localhost/api/spots?season=fall"));
     expect(res.status).toBe(200);
   });
 
   it("passes multiple filters to query", async () => {
     mockFromReturns([]);
     const res = await GET(
-      new Request("http://localhost/api/spots?season=spring&forest_type=conifer&area_type=national_forest") as any
+      new NextRequest(
+        "http://localhost/api/spots?season=spring&forest_type=conifer&area_type=national_forest"
+      )
     );
     expect(res.status).toBe(200);
   });
@@ -71,11 +75,11 @@ describe("POST /api/spots", () => {
   it("rejects unauthenticated requests", async () => {
     mockAuthUser(null);
     const res = await POST(
-      new Request("http://localhost/api/spots", {
+      new NextRequest("http://localhost/api/spots", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: "Spot", latitude: 47, longitude: -121 }),
-      }) as any
+      })
     );
     expect(res.status).toBe(401);
     expect((await res.json()).error).toBe("Unauthorized");
@@ -86,7 +90,7 @@ describe("POST /api/spots", () => {
     mockFromReturns({ id: 2, name: "New Spot" });
 
     const res = await POST(
-      new Request("http://localhost/api/spots", {
+      new NextRequest("http://localhost/api/spots", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -97,7 +101,7 @@ describe("POST /api/spots", () => {
           forest_type: "conifer",
           area_type: "national_forest",
         }),
-      }) as any
+      })
     );
     expect(res.status).toBe(201);
   });
